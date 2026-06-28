@@ -63,8 +63,16 @@ and also accepts a raw mind-elixir export.
   expand-a-branch. Front-end `js/ai.js` + AI modal; backend `server/` Express Gemini proxy
   (`gemini-3.5-flash`, flat-list `responseSchema`, CORS allow-list, rate limit, `/api/health`).
   Verified end-to-end in the browser against real Gemini (generate + expand).
-- **Phase 3 ⏳** Presentation mode. **Phase 4 ⏳** Real-time co-editing. **Phase 5 ⏳** Stylus ink.
+- **Phase 3 ✅ DONE & verified**: full-screen presentation mode (`js/presentation.js`) — DFS step
+  walk, smooth zoom-to-each-idea (`mm.presentFocus`), current-node highlight, caption + counter,
+  arrow/space/Esc keys, editing locked, fullscreen. (Progressive collapse/reveal was dropped — it
+  tripped mind-elixir's `refresh()`; we use a zoom tour over the fully-expanded map instead.)
+- **Phase 4 ⏳** Real-time co-editing. **Phase 5 ⏳** Stylus ink.
 - Full roadmap: `C:\Users\omrii\.claude\plans\that-can-also-support-elegant-papert.md`.
+- **RTL canvas note:** the map subtree is forced `direction: ltr` (mind-elixir's pan/centre math
+  needs LTR or the map drifts off-screen on wide screens); node TEXT is `direction: rtl`, and
+  mind-elixir **LEFT** = root-on-right. `meta.direction` stores the mind-elixir constant (schema v2
+  migrates v1 maps by flipping LEFT/RIGHT).
 
 ## Live URLs & hosting
 - **Primary app: https://mindmap.omri-iram.co.il** — served from the **VPS** (nginx static root

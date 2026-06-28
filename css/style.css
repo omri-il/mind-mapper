@@ -244,6 +244,37 @@ body.side-collapsed .side-body { display: none; }
 .outline-item .o-emoji { flex: none; }
 .outline-item .o-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+/* ===== Presentation mode ===== */
+.tb-present { background: linear-gradient(135deg, #10b981, #059669); color: #fff; border-color: transparent; }
+.tb-present:hover { filter: brightness(1.07); background: linear-gradient(135deg, #10b981, #059669); }
+
+body.presenting .toolbar,
+body.presenting .sidebar { display: none; }
+body.presenting .map { cursor: default; }
+
+.presenter-bar {
+  position: fixed; inset-block-end: 24px; inset-inline: 0; margin-inline: auto; width: max-content;
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(31, 39, 56, .94); color: #fff; padding: 8px 12px; border-radius: 999px;
+  box-shadow: var(--shadow); z-index: 200;
+}
+.presenter-bar[hidden] { display: none; }
+.presenter-bar button { background: transparent; border: 0; color: #fff; font-size: 17px; padding: 7px 11px; border-radius: 10px; line-height: 1; }
+.presenter-bar button:hover { background: rgba(255, 255, 255, .16); }
+.presenter-bar #presCount { font-weight: 800; min-width: 56px; text-align: center; font-size: 14px; }
+
+.present-caption {
+  position: fixed; inset-block-start: 22px; inset-inline: 0; text-align: center;
+  font-size: 26px; font-weight: 800; color: var(--ink); z-index: 200; pointer-events: none;
+  padding-inline: 24px;
+}
+.present-caption[hidden] { display: none; }
+
+me-tpc.present-current {
+  outline: 3px solid var(--accent); outline-offset: 3px;
+  box-shadow: 0 0 0 7px color-mix(in srgb, var(--accent) 22%, transparent), 0 12px 32px rgba(0, 0, 0, .18) !important;
+}
+
 /* ===== Toasts ===== */
 .toasts { position: fixed; inset-block-end: 20px; inset-inline: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: 100; pointer-events: none; }
 .toast { background: #1f2738; color: #fff; padding: 10px 16px; border-radius: 999px; font-size: 14px; font-weight: 600; box-shadow: var(--shadow); animation: toastIn .2s ease; }

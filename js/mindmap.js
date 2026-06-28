@@ -66,8 +66,9 @@ export class MindMap {
 
     // re-center when the container size changes (sidebar toggle, window resize, after fonts load)
     this._ro = new ResizeObserver(() => {
+      if (this._suspendRecenter) return; // presentation controls the camera itself
       clearTimeout(this._roT);
-      this._roT = setTimeout(() => { try { this.mind.toCenter(); } catch {} }, 160);
+      this._roT = setTimeout(() => { if (!this._suspendRecenter) { try { this.mind.toCenter(); } catch {} } }, 160);
     });
     this._ro.observe(el);
   }
@@ -222,6 +223,43 @@ export class MindMap {
     const cur = parseInt(el.nodeObj.style?.fontSize, 10) || 24;
     const next = clamp(cur + delta, 12, 56);
     this.mind.reshapeNode(el, { style: { fontSize: String(next) } });
+  }
+
+  // ---- presentation support ----
+  setPresenting(on) { this._suspendRecenter = on; }
+  lockEditing(on) { this.mind.editable = !on; }
+  nodeEl(id) {
+    return MindElixir.E(id) || [...document.querySelectorAll('me-tpc')].find((t) => t.nodeObj?.id === id) || null;
+  }
+
+  // center + zoom to a node (or fit the whole map when overview)
+  presentFocus(id, overview) {
+    this._animate();
+    const el = id ? MindElixir.E(id) : null;
+    if (overview || !el) { this.mind.scaleFit(); return; }
+    this.mind.selectNode(el);
+    this.mind.scale(1.1);
+    try { this.mind.scrollIntoView(el, true); } catch { try { this.mind.toCenter(); } catch {} }
+  }
+  expandById(id, on) { const el = MindElixir.E(id); if (el) this.mind.expandNode(el, on); }
+  // collapse every node EXCEPT the root (collapsing the root itself trips mind-elixir)
+  collapseAll() {
+    const root = this.mind.getData().nodeData; if (!root) return;
+    const walk = (n) => {
+      (n.children || []).forEach((c) => { if (c) { if (c.children?.length) c.expanded = false; walk(c); } });
+    };
+    walk(root);
+    this.mind.refresh();
+  }
+  snapshotExpanded() {
+    const map = {};
+    const walk = (n) => { if (!n) return; if (n.children?.length) map[n.id] = n.expanded !== false; (n.children || []).forEach(walk); };
+    walk(this.mind.getData().nodeData); return map;
+  }
+  restoreExpanded(map) {
+    const root = this.mind.getData().nodeData; if (!root) return;
+    const walk = (n) => { if (!n) return; if (n.id in map) n.expanded = map[n.id]; (n.children || []).forEach(walk); };
+    walk(root); this.mind.refresh();
   }
 }
 

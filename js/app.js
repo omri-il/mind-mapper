@@ -8,11 +8,13 @@ import { exportJSON, toMarkdown, toOPML, download, safeName } from './export-tex
 import { callGenerate, buildForest } from './ai.js';
 import { initSidebar } from './sidebar.js';
 import { renderOutline } from './outline.js';
+import { Presentation } from './presentation.js';
 import * as ui from './ui.js';
 
 const mm = new MindMap('#map');
 let current = null;
 let side = null;
+let present = null;
 const autosave = store.makeAutosaver(600);
 const $ = (id) => document.getElementById(id);
 
@@ -74,6 +76,14 @@ function boot() {
   mm.onSelect(() => updateFmtTarget());
 
   side = initSidebar();
+  present = new Presentation(mm, {
+    onUpdate: (i, n, topic) => {
+      $('presCount').textContent = i + ' / ' + n;
+      $('presCaption').textContent = topic || '';
+      $('presCaption').hidden = !topic;
+    },
+    onExit: () => { $('presenterBar').hidden = true; $('presCaption').hidden = true; },
+  });
   wireToolbar();
   wireSidebar();
   ui.setupGlobalDismiss();
@@ -100,6 +110,13 @@ function wireToolbar() {
 
   $('btnMaps').onclick = () => side.openTab('maps');
   $('btnSidebar').onclick = () => side.toggle();
+
+  // presentation
+  $('btnPresent').onclick = () => { $('presenterBar').hidden = false; present.start(); };
+  $('presNext').onclick = () => present.next();
+  $('presPrev').onclick = () => present.prev();
+  $('presOverview').onclick = () => present.overview();
+  $('presExit').onclick = () => present.exit();
 }
 
 // ---------- sidebar wiring ----------

@@ -14,7 +14,7 @@
   <!-- mind-elixir core stylesheet (pinned major) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mind-elixir@5/dist/MindElixir.css" />
 
-  <link rel="stylesheet" href="css/style.css?v=5" />
+  <link rel="stylesheet" href="css/style.css?v=6" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%A0%3C/text%3E%3C/svg%3E" />
 </head>
 <body>
@@ -62,6 +62,7 @@
     </div>
 
     <div class="tb-sep"></div>
+    <button class="tb-btn tb-present" id="btnPresent" title="מצגת — זום לכל רעיון (Esc ליציאה)"><span class="ic">▶</span><span class="lbl">מצגת</span></button>
     <button class="tb-btn tb-side-toggle" id="btnSidebar" title="הצג/הסתר פאנל"><span class="ic">⮜</span></button>
   </header>
 
@@ -144,12 +145,22 @@
     </aside>
   </div>
 
+  <!-- Presentation overlay -->
+  <div class="present-caption" id="presCaption" hidden></div>
+  <div class="presenter-bar" id="presenterBar" hidden>
+    <button id="presPrev" title="הקודם (←)">◀</button>
+    <span id="presCount">1 / 1</span>
+    <button id="presNext" title="הבא (→ / רווח)">▶</button>
+    <button id="presOverview" title="מבט-על (Home)">🗺️</button>
+    <button id="presExit" title="יציאה (Esc)">✕</button>
+  </div>
+
   <!-- Hidden file input for import -->
   <input type="file" id="fileInput" accept="application/json,.json,.mindmap.json" hidden />
 
   <!-- Toasts -->
   <div class="toasts" id="toasts" aria-live="polite"></div>
 
-  <script type="module" src="js/app.js?v=5"></script>
+  <script type="module" src="js/app.js?v=6"></script>
 </body>
 </html>
