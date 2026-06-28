@@ -1,0 +1,14 @@
+{
+  "name": "mind-mapper",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Hebrew-first web mind mapping & presentation tool (buildless static front-end). This manifest is dev-tooling only (Playwright tests); the deployed site is the static files.",
+  "type": "module",
+  "scripts": {
+    "serve": "py -m http.server 5173",
+    "test": "node test/smoke.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.61.1"
+  }
+}

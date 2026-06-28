@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>מפת חשיבה — כלי מפות חשיבה בעברית</title>
+  <meta name="description" content="כלי חינמי ליצירת מפות חשיבה בעברית — צבעוני, אינטואיטיבי, עם בינה מלאכותית ומצב מצגת." />
+
+  <!-- Hebrew fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700;800&family=Heebo:wght@400;500;700;800&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- mind-elixir core stylesheet (pinned major) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mind-elixir@5/dist/MindElixir.css" />
+
+  <link rel="stylesheet" href="css/style.css?v=1" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%A0%3C/text%3E%3C/svg%3E" />
+</head>
+<body>
+  <!-- Top toolbar -->
+  <header class="toolbar" id="toolbar">
+    <div class="tb-group tb-brand">
+      <button class="tb-btn tb-maps" id="btnMaps" title="המפות שלי">
+        <span class="ic">🗂️</span><span class="lbl" id="currentMapTitle">מפה חדשה</span>
+      </button>
+    </div>
+
+    <div class="tb-sep"></div>
+
+    <div class="tb-group" aria-label="עריכת צמתים">
+      <button class="tb-btn" id="btnAddChild" title="הוסף ענף-בן (Tab)"><span class="ic">➕</span><span class="lbl">בן</span></button>
+      <button class="tb-btn" id="btnAddSibling" title="הוסף ענף-אח (Enter)"><span class="ic">↔️</span><span class="lbl">אח</span></button>
+      <button class="tb-btn" id="btnEdit" title="ערוך טקסט (F2)"><span class="ic">✏️</span><span class="lbl">ערוך</span></button>
+      <button class="tb-btn" id="btnDelete" title="מחק (Delete)"><span class="ic">🗑️</span><span class="lbl">מחק</span></button>
+    </div>
+
+    <div class="tb-sep"></div>
+
+    <div class="tb-group" aria-label="עיצוב">
+      <div class="tb-pop-wrap">
+        <button class="tb-btn" id="btnColor" title="צבע ענף"><span class="ic">🎨</span><span class="lbl">צבע</span></button>
+        <div class="popover" id="popColor" hidden>
+          <div class="swatches" id="colorSwatches"></div>
+          <button class="link-btn" id="btnClearColor">נקה צבע</button>
+        </div>
+      </div>
+      <div class="tb-pop-wrap">
+        <button class="tb-btn" id="btnIcon" title="אייקון / אימוג'י"><span class="ic">😀</span><span class="lbl">אייקון</span></button>
+        <div class="popover" id="popIcon" hidden>
+          <div class="emoji-grid" id="emojiGrid"></div>
+          <button class="link-btn" id="btnClearIcon">הסר אייקון</button>
+        </div>
+      </div>
+      <div class="tb-pop-wrap">
+        <button class="tb-btn" id="btnTheme" title="ערכת נושא"><span class="ic">🖌️</span><span class="lbl">סגנון</span></button>
+        <div class="popover" id="popTheme" hidden>
+          <button class="theme-opt" data-theme="clean"><b>נקי ומודרני</b><small>כרטיסים מעוגלים, קווים עדינים</small></button>
+          <button class="theme-opt" data-theme="playful"><b>אורגני וצבעוני</b><small>צבעים חיים, קווים מודגשים</small></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tb-sep"></div>
+
+    <div class="tb-group" aria-label="תצוגה">
+      <button class="tb-btn" id="btnZoomIn" title="הגדל"><span class="ic">➕</span></button>
+      <button class="tb-btn" id="btnZoomOut" title="הקטן"><span class="ic">➖</span></button>
+      <button class="tb-btn" id="btnFit" title="התאם לחלון"><span class="ic">🎯</span><span class="lbl">מרכז</span></button>
+      <button class="tb-btn" id="btnDir" title="כיוון פריסה (ימין/שמאל/דו-צדדי)"><span class="ic">↤</span><span class="lbl">כיוון</span></button>
+    </div>
+
+    <div class="tb-spacer"></div>
+
+    <div class="tb-group" aria-label="קובץ">
+      <button class="tb-btn" id="btnNew" title="מפה חדשה"><span class="ic">📄</span><span class="lbl">חדש</span></button>
+      <div class="tb-pop-wrap">
+        <button class="tb-btn" id="btnExport" title="ייצוא"><span class="ic">⬇️</span><span class="lbl">ייצוא</span></button>
+        <div class="popover popover-end" id="popExport" hidden>
+          <button class="link-btn" data-export="png">תמונה (PNG)</button>
+          <button class="link-btn" data-export="svg">וקטור (SVG)</button>
+          <button class="link-btn" data-export="json">קובץ מפה (JSON)</button>
+          <button class="link-btn" data-export="md">Markdown</button>
+          <button class="link-btn" data-export="opml">OPML</button>
+        </div>
+      </div>
+      <button class="tb-btn" id="btnImport" title="פתח קובץ JSON"><span class="ic">📂</span><span class="lbl">פתח</span></button>
+    </div>
+  </header>
+
+  <!-- The mind map canvas -->
+  <main id="map" class="map"></main>
+
+  <!-- Maps drawer -->
+  <aside class="drawer" id="drawer" hidden>
+    <div class="drawer-head">
+      <h2>המפות שלי</h2>
+      <button class="icon-x" id="closeDrawer" title="סגור">✕</button>
+    </div>
+    <button class="drawer-new" id="drawerNew">➕ מפה חדשה</button>
+    <ul class="maps-list" id="mapsList"></ul>
+  </aside>
+  <div class="scrim" id="scrim" hidden></div>
+
+  <!-- Hidden file input for import -->
+  <input type="file" id="fileInput" accept="application/json,.json,.mindmap.json" hidden />
+
+  <!-- Toasts -->
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
+  <script type="module" src="js/app.js?v=1"></script>
+</body>
+</html>
