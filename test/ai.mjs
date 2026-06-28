@@ -1,7 +1,7 @@
 // Phase 2 AI end-to-end — drives the browser UI against the local proxy (:5055).
 import { chromium } from 'playwright';
 
-const URL = 'http://localhost:5173/';
+const URL = process.env.TEST_URL || 'http://localhost:5173/';
 const SHOT = process.env.SHOT || 'ai.png';
 const errors = [];
 const results = [];
