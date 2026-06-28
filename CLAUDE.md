@@ -95,11 +95,16 @@ and also accepts a raw mind-elixir export.
 
 ## Verify / test
 ```bash
-npm run serve     # http://localhost:5173
-npm test          # Playwright smoke (needs Chrome/Edge installed)
+npm run serve                 # http://localhost:5173 (Python static server)
+node test/smoke.mjs           # core: load, RTL, add, theme, exports
+node test/ux.mjs              # layout full-height, grab-pan, wheel-zoom, sidebar, outline
+node test/ai.mjs              # AI generate + expand (needs local proxy or live)
+node test/present.mjs         # presentation enter/step/keys/exit
+# any test takes TEST_URL=https://mindmap.omri-iram.co.il/ and SHOT=<path> env vars
 ```
-Manual check that automation can't fully judge: type Hebrew into nodes (correct RTL), confirm
-root-right / branches-left, switch themes, export each format.
+Tests drive the installed Chrome/Edge (Playwright `channel`). Manual check automation can't fully
+judge: type Hebrew into nodes (correct RTL), confirm root-right / branches-left, switch themes,
+export each format, grab-drag the canvas + a node, run a presentation.
 
 ## Deploy notes
 - GitHub repo: omri-il/mind-mapper. GitHub Pages on `master` (root).
@@ -107,3 +112,13 @@ root-right / branches-left, switch themes, export each format.
   URL exists.
 - Phase 2 server follows the **Bio-Podcast** pattern (Express + `.env` + systemd + Nginx);
   CORS allow-listed to the Pages origin; `GEMINI_API_KEY` in `server/.env` (gitignored).
+
+## Where we left off (session close)
+- **Done & live:** Phases 1–3 (core RTL mapping, AI generate/expand/paste-text, UX overhaul with
+  grab-pan + fluid zoom + unified sidebar, RTL off-screen fix, node-drag polish, presentation mode).
+  All verified by the Playwright suites above; live at https://mindmap.omri-iram.co.il.
+- **Next session — Phase 4: real-time co-editing** (Yjs + a y-websocket service on the VPS, share
+  via `?room=`, presence/cursors). Biggest/most infra-heavy phase; spike the mind-elixir↔Yjs binding
+  first. See the roadmap plan for the design.
+- **Open optional follow-ups:** list Mind-Mapper in `tools-hub` + the global project list; consider
+  a safer "progressive reveal" for presentation; raise the AI rate limit if needed.
