@@ -1,4 +1,9 @@
-// config.js — where the AI proxy lives. Local dev points at a local server;
-// production (github.io / custom domain) points at the VPS proxy.
-const isLocal = ['localhost', '127.0.0.1'].includes(location.hostname);
-export const API_BASE = isLocal ? 'http://localhost:5055' : 'https://mind-ai.omri-iram.co.il';
+// config.js — where the AI proxy lives.
+// - Served from the VPS (mindmap.omri-iram.co.il): same origin, no CORS.
+// - Local dev: a local proxy on :5055.
+// - Anywhere else (e.g. the github.io mirror): the VPS proxy, cross-origin (CORS allow-listed).
+const h = location.hostname;
+export const API_BASE =
+  h === 'mindmap.omri-iram.co.il' ? '' :
+  (h === 'localhost' || h === '127.0.0.1') ? 'http://localhost:5055' :
+  'https://mindmap.omri-iram.co.il';

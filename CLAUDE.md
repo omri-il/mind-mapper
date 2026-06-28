@@ -45,9 +45,31 @@ and also accepts a raw mind-elixir export.
 ## Status
 - **Phase 1 ✅ DONE & verified** (9/9 smoke checks, 0 console errors): RTL mapping, colors, emoji,
   2 themes, save/load + drawer, autosave, export PNG/SVG/JSON/MD/OPML, import, direction toggle.
-- **Phase 2 ⏳** AI (prompt→map, expand, paste-text→map) via `server/` Gemini proxy — see plan.
+- **Phase 2 ✅ DONE & verified live**: AI map from a prompt, from pasted text (grounded), and
+  expand-a-branch. Front-end `js/ai.js` + AI modal; backend `server/` Express Gemini proxy
+  (`gemini-3.5-flash`, flat-list `responseSchema`, CORS allow-list, rate limit, `/api/health`).
+  Verified end-to-end in the browser against real Gemini (generate + expand).
 - **Phase 3 ⏳** Presentation mode. **Phase 4 ⏳** Real-time co-editing. **Phase 5 ⏳** Stylus ink.
 - Full roadmap: `C:\Users\omrii\.claude\plans\that-can-also-support-elegant-papert.md`.
+
+## Live URLs & hosting
+- **Primary app: https://mindmap.omri-iram.co.il** — served from the **VPS** (nginx static root
+  `/var/www/mindmap`, with `location /api/` → the node proxy on `127.0.0.1:5055`). Same-origin API
+  (no CORS for the primary app). This mirrors Bio-Podcast/micropod.
+- **Mirror: https://omri-il.github.io/mind-mapper/** — GitHub Pages (master root). Its AI calls
+  the VPS cross-origin (CORS allow-lists the github.io origin).
+- **AI proxy:** systemd `mindmapper-ai.service` on the VPS (`/root/Projects/mind-mapper/server`),
+  key in `server/.env` (gitignored). Health: `https://mindmap.omri-iram.co.il/api/health`.
+- `js/config.js` picks the API base by hostname: mindmap domain → same-origin `''`; localhost →
+  `http://localhost:5055`; else → `https://mindmap.omri-iram.co.il`.
+
+## Deploy
+- **Front-end change → both targets:** `git push` (updates the github.io mirror), then on the VPS
+  `cd /root/Projects/mind-mapper && git pull && rsync -a --delete index.html css js /var/www/mindmap/`
+  (only static files — never `server/`, `.git`, `.env`). Bump `?v=N` on `style.css`/`app.js` in
+  `index.html` when they change.
+- **Server change:** VPS `git pull` then `systemctl restart mindmapper-ai`.
+- DNS: `mindmap.omri-iram.co.il` A → `147.79.114.195` (Hostinger). TLS via Let's Encrypt (certbot).
 
 ## Verify / test
 ```bash

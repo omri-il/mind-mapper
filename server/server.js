@@ -11,7 +11,7 @@ const MODEL = process.env.GEMINI_MODEL || 'gemini-3.5-flash';
 const FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL || 'gemini-2.5-flash';
 const ALLOWED = new Set([
   'https://omri-il.github.io',
-  'https://mind.omri-iram.co.il',
+  'https://mindmap.omri-iram.co.il',
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   ...(process.env.ALLOWED_ORIGINS || '').split(',').map((s) => s.trim()).filter(Boolean),
