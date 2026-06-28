@@ -1,0 +1,15 @@
+[Unit]
+Description=Mind-Mapper AI proxy (Gemini)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/root/Projects/mind-mapper/server
+EnvironmentFile=/root/Projects/mind-mapper/server/.env
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=3
+User=root
+
+[Install]
+WantedBy=multi-user.target

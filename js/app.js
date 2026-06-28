@@ -5,6 +5,7 @@ import { newEnvelope, validate, genId, DIR } from './schema.js';
 import { applyChromeTheme } from './theme.js';
 import { exportPng, exportSvg } from './export-image.js';
 import { exportJSON, toMarkdown, toOPML, download, safeName } from './export-text.js';
+import { callGenerate, buildForest } from './ai.js';
 import * as ui from './ui.js';
 
 const mm = new MindMap('#map');
@@ -108,6 +109,69 @@ function wireToolbar() {
   $('closeDrawer').onclick = ui.closeDrawer;
   $('scrim').onclick = ui.closeDrawer;
   $('drawerNew').onclick = () => { ui.closeDrawer(); newMap(); };
+
+  // AI
+  $('btnAI').onclick = openAIModal;
+  $('btnExpand').onclick = runExpand;
+  $('aiClose').onclick = closeAIModal;
+  $('aiScrim').onclick = closeAIModal;
+  $('aiGo').onclick = runGenerate;
+  document.querySelectorAll('.seg-btn').forEach((b) => { b.onclick = () => setMode(b.dataset.mode); });
+  $('aiInput').addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) runGenerate(); });
+}
+
+// ---------- AI ----------
+let aiMode = 'generate';
+function openAIModal() { $('aiScrim').hidden = false; $('aiModal').hidden = false; setBusy(false); $('aiInput').value = ''; $('aiInput').focus(); }
+function closeAIModal() { $('aiScrim').hidden = true; $('aiModal').hidden = true; }
+function setBusy(b) { $('aiBusy').hidden = !b; $('aiGo').disabled = b; }
+function setMode(m) {
+  aiMode = m;
+  document.querySelectorAll('.seg-btn').forEach((x) => x.classList.toggle('active', x.dataset.mode === m));
+  $('aiInput').placeholder = m === 'source'
+    ? 'הדבק כאן מאמר, סיכום או הערות — וה-AI יבנה מהם מפה'
+    : "על מה המפה? לדוגמה: שיעור על פוטוסינתזה לכיתה ז'";
+  $('aiHint').textContent = m === 'source'
+    ? 'ה-AI יבנה מפה מהטקסט שלך בלבד. תיווצר מפה חדשה.'
+    : 'המפה תיווצר כמפה חדשה ולא תדרוס את הנוכחית.';
+}
+
+async function runGenerate() {
+  const text = $('aiInput').value.trim();
+  if (!text) { ui.toast('צריך להזין טקסט', 'err'); return; }
+  setBusy(true);
+  try {
+    const { title, nodes } = await callGenerate({ mode: aiMode, prompt: text });
+    const forest = buildForest(nodes);
+    if (!forest.length) throw new Error('לא התקבלה מפה');
+    let root = forest.length === 1 ? forest[0] : { topic: title || 'מפת AI', children: forest, expanded: true };
+    root.id = 'root';
+    const env = newEnvelope(title || 'מפת AI');
+    env.root = root;
+    store.saveMap(env);
+    openEnvelope(env);
+    closeAIModal();
+    ui.toast('המפה נוצרה ✨', 'ok');
+  } catch (err) {
+    ui.toast(err.message || 'יצירת המפה נכשלה', 'err');
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function runExpand() {
+  const ctx = mm.currentContext();
+  if (!ctx || !ctx.topic) { ui.toast('בחר קודם צומת להרחבה', 'err'); return; }
+  ui.toast('מרחיב עם AI…');
+  try {
+    const { nodes } = await callGenerate({ mode: 'expand', topic: ctx.topic, path: ctx.path });
+    const forest = buildForest(nodes);
+    if (!mm.appendChildren(forest)) throw new Error('לא ניתן להרחיב את הצומת');
+    persist();
+    ui.toast('נוספו רעיונות ✨', 'ok');
+  } catch (err) {
+    ui.toast(err.message || 'ההרחבה נכשלה', 'err');
+  }
 }
 
 // ---------- export ----------
