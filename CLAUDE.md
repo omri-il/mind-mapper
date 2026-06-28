@@ -20,9 +20,9 @@ modules + mind-elixir v5 from jsDelivr), deployed to GitHub Pages. RTL is the co
   `beginEdit()`, `removeNodes([])`, `reshapeNode(topicEl,{style,icons})`, `selectNode()`,
   `bus.addListener('operation'|'selectNodes')`, `scale()/scaleFit()`, `exportPng()/exportSvg()`,
   static `MindElixir.E(id)`, `MindElixir.new(topic)`, `MindElixir.THEME`, `MindElixir.RIGHT`(=1)/`LEFT`(=0)/`SIDE`(=2).
-- **RTL layout:** `direction: RIGHT` on an `<html dir="rtl">` page renders **root on the right,
-  branches flowing left** — the Hebrew-natural layout. (Visual outcome is what matters; the
-  constant name is mind-elixir's.)
+- **RTL layout:** the map subtree is CSS `direction: ltr` (mind-elixir's pan/centre math needs LTR)
+  while node TEXT is `direction: rtl`; mind-elixir **LEFT** then renders **root-on-right / branches
+  flowing left** (Hebrew-natural). Full detail in the "RTL canvas note" under Status.
 
 ## Data model (`js/schema.js`)
 One envelope `*.mindmap.json`: `{ format:'mindmapper', version, meta:{id,title,direction,theme,…},
