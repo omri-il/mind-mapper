@@ -30,10 +30,24 @@ root, presentation?, ink? }`. `root` **is** a mind-elixir `nodeData` tree, so JS
 valid re-importable map and AI maps (later) use the same shape. `validate()` migrates/normalizes
 and also accepts a raw mind-elixir export.
 
+## Layout & interaction (UX overhaul)
+- **Shell is flex** (`body` flex-column `100dvh` → `.toolbar` + `.workspace` row → `#map` + `.sidebar`).
+  This gives `#map` a definite height so mind-elixir's `.map-container{height:100%}` fills the
+  viewport (fixes the old "dead bottom half" — `position:fixed top/bottom` left height `auto`).
+- **Grab-to-pan**: `mouseSelectionButton:2` frees the left button; `mindmap.js _initInteractions()`
+  pans via `mind.move(dx,dy)` on left-drag of empty background, wheel = pan / ctrl+wheel(pinch) =
+  zoom-to-cursor, and a `ResizeObserver` on `#map` re-centers (`toCenter`) after resize/sidebar
+  toggle. One-off camera moves add a `.animate` class on `.map-canvas` for a smooth transition.
+- **Unified sidebar** (`js/sidebar.js`): rail (🗂️ Maps / 🎨 Format / ✨ AI / 📋 Outline) + panel,
+  collapsible (toolbar `#btnSidebar` toggles `body.side-collapsed`). Replaced the old pop-out drawer,
+  toolbar pop-ups, and center AI modal.
+
 ## File map
-- `index.html` — RTL shell, Hebrew fonts, toolbar, `#map`, drawer, modals.
-- `js/app.js` — orchestrator: boot, toolbar wiring, export/import, drawer.
-- `js/mindmap.js` — mind-elixir wrapper (the ONLY place that touches its API).
+- `index.html` — RTL flex shell, Hebrew fonts, lean toolbar, `#map`, `.sidebar` (4 panes).
+- `js/app.js` — orchestrator: boot, toolbar + sidebar wiring, export/import.
+- `js/sidebar.js` — sidebar tab switching + collapse. `js/outline.js` — tree → RTL outline + focus.
+- `js/mindmap.js` — mind-elixir wrapper (the ONLY place that touches its API); pan/zoom/resize,
+  `focusNodeById`, `setFontDelta`, `appendChildren`, `findTrail`.
 - `js/schema.js` — envelope ↔ nodeData adapter, ids, validate/migrate.
 - `js/storage.js` — LocalStorage CRUD + debounced autosave.
 - `js/theme.js` — `clean` + `playful` presets (built on `MindElixir.THEME`).

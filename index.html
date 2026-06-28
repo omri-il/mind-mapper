@@ -14,11 +14,11 @@
   <!-- mind-elixir core stylesheet (pinned major) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mind-elixir@5/dist/MindElixir.css" />
 
-  <link rel="stylesheet" href="css/style.css?v=2" />
+  <link rel="stylesheet" href="css/style.css?v=3" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%A0%3C/text%3E%3C/svg%3E" />
 </head>
 <body>
-  <!-- Top toolbar -->
+  <!-- Top toolbar (core canvas actions only) -->
   <header class="toolbar" id="toolbar">
     <div class="tb-group tb-brand">
       <button class="tb-btn tb-maps" id="btnMaps" title="המפות שלי">
@@ -37,42 +37,9 @@
 
     <div class="tb-sep"></div>
 
-    <div class="tb-group" aria-label="בינה מלאכותית">
-      <button class="tb-btn tb-ai" id="btnAI" title="צור מפה עם בינה מלאכותית"><span class="ic">✨</span><span class="lbl">AI</span></button>
-      <button class="tb-btn" id="btnExpand" title="הרחב את הצומת הנבחר עם AI"><span class="ic">🪄</span><span class="lbl">הרחב</span></button>
-    </div>
-
-    <div class="tb-sep"></div>
-
-    <div class="tb-group" aria-label="עיצוב">
-      <div class="tb-pop-wrap">
-        <button class="tb-btn" id="btnColor" title="צבע ענף"><span class="ic">🎨</span><span class="lbl">צבע</span></button>
-        <div class="popover" id="popColor" hidden>
-          <div class="swatches" id="colorSwatches"></div>
-          <button class="link-btn" id="btnClearColor">נקה צבע</button>
-        </div>
-      </div>
-      <div class="tb-pop-wrap">
-        <button class="tb-btn" id="btnIcon" title="אייקון / אימוג'י"><span class="ic">😀</span><span class="lbl">אייקון</span></button>
-        <div class="popover" id="popIcon" hidden>
-          <div class="emoji-grid" id="emojiGrid"></div>
-          <button class="link-btn" id="btnClearIcon">הסר אייקון</button>
-        </div>
-      </div>
-      <div class="tb-pop-wrap">
-        <button class="tb-btn" id="btnTheme" title="ערכת נושא"><span class="ic">🖌️</span><span class="lbl">סגנון</span></button>
-        <div class="popover" id="popTheme" hidden>
-          <button class="theme-opt" data-theme="clean"><b>נקי ומודרני</b><small>כרטיסים מעוגלים, קווים עדינים</small></button>
-          <button class="theme-opt" data-theme="playful"><b>אורגני וצבעוני</b><small>צבעים חיים, קווים מודגשים</small></button>
-        </div>
-      </div>
-    </div>
-
-    <div class="tb-sep"></div>
-
     <div class="tb-group" aria-label="תצוגה">
-      <button class="tb-btn" id="btnZoomIn" title="הגדל"><span class="ic">➕</span></button>
       <button class="tb-btn" id="btnZoomOut" title="הקטן"><span class="ic">➖</span></button>
+      <button class="tb-btn" id="btnZoomIn" title="הגדל"><span class="ic">➕</span></button>
       <button class="tb-btn" id="btnFit" title="התאם לחלון"><span class="ic">🎯</span><span class="lbl">מרכז</span></button>
       <button class="tb-btn" id="btnDir" title="כיוון פריסה (ימין/שמאל/דו-צדדי)"><span class="ic">↤</span><span class="lbl">כיוון</span></button>
     </div>
@@ -91,41 +58,90 @@
           <button class="link-btn" data-export="opml">OPML</button>
         </div>
       </div>
-      <button class="tb-btn" id="btnImport" title="פתח קובץ JSON"><span class="ic">📂</span><span class="lbl">פתח</span></button>
+      <button class="tb-btn" id="btnImport" title="פתח קובץ JSON"><span class="ic">📂</span></button>
     </div>
+
+    <div class="tb-sep"></div>
+    <button class="tb-btn tb-side-toggle" id="btnSidebar" title="הצג/הסתר פאנל"><span class="ic">⮜</span></button>
   </header>
 
-  <!-- The mind map canvas -->
-  <main id="map" class="map"></main>
+  <!-- Workspace: map + sidebar -->
+  <div class="workspace">
+    <main id="map" class="map"></main>
 
-  <!-- Maps drawer -->
-  <aside class="drawer" id="drawer" hidden>
-    <div class="drawer-head">
-      <h2>המפות שלי</h2>
-      <button class="icon-x" id="closeDrawer" title="סגור">✕</button>
-    </div>
-    <button class="drawer-new" id="drawerNew">➕ מפה חדשה</button>
-    <ul class="maps-list" id="mapsList"></ul>
-  </aside>
-  <div class="scrim" id="scrim" hidden></div>
+    <aside class="sidebar" id="sidebar">
+      <nav class="side-rail">
+        <button class="rail-btn active" data-tab="maps" title="המפות שלי">🗂️</button>
+        <button class="rail-btn" data-tab="format" title="עיצוב הצומת">🎨</button>
+        <button class="rail-btn" data-tab="ai" title="בינה מלאכותית">✨</button>
+        <button class="rail-btn" data-tab="outline" title="מתאר">📋</button>
+      </nav>
 
-  <!-- AI modal -->
-  <div class="modal-scrim" id="aiScrim" hidden></div>
-  <div class="modal" id="aiModal" hidden role="dialog" aria-modal="true" aria-labelledby="aiTitle">
-    <div class="modal-head">
-      <h2 id="aiTitle">✨ יצירת מפה עם AI</h2>
-      <button class="icon-x" id="aiClose" title="סגור">✕</button>
-    </div>
-    <div class="seg" id="aiSeg">
-      <button class="seg-btn active" data-mode="generate">מרעיון</button>
-      <button class="seg-btn" data-mode="source">מהטקסט שלי</button>
-    </div>
-    <textarea id="aiInput" rows="5" placeholder="על מה המפה? לדוגמה: שיעור על פוטוסינתזה לכיתה ז'"></textarea>
-    <p class="modal-hint" id="aiHint">המפה תיווצר כמפה חדשה ולא תדרוס את הנוכחית.</p>
-    <div class="modal-actions">
-      <button class="btn-primary" id="aiGo">צור מפה</button>
-    </div>
-    <div class="ai-busy" id="aiBusy" hidden><span class="spinner"></span> בונה את המפה…</div>
+      <div class="side-body">
+        <!-- Maps -->
+        <section class="side-pane" data-pane="maps">
+          <div class="pane-head"><h2>המפות שלי</h2></div>
+          <button class="pane-cta" id="paneNewMap">➕ מפה חדשה</button>
+          <ul class="maps-list" id="mapsList"></ul>
+        </section>
+
+        <!-- Format selected node -->
+        <section class="side-pane" data-pane="format" hidden>
+          <div class="pane-head"><h2>עיצוב הצומת</h2></div>
+          <p class="fmt-target" id="fmtTarget">לא נבחר צומת</p>
+
+          <div class="fmt-block">
+            <label>צבע</label>
+            <div class="swatches" id="fmtColors"></div>
+            <button class="mini-btn" id="fmtClearColor">נקה צבע</button>
+          </div>
+
+          <div class="fmt-block">
+            <label>אייקון</label>
+            <div class="emoji-grid" id="fmtEmoji"></div>
+            <button class="mini-btn" id="fmtClearIcon">הסר אייקון</button>
+          </div>
+
+          <div class="fmt-block">
+            <label>גודל טקסט</label>
+            <div class="fmt-row">
+              <button class="mini-btn" id="fmtFontDown">A−</button>
+              <button class="mini-btn" id="fmtFontUp">A＋</button>
+            </div>
+          </div>
+
+          <div class="fmt-block">
+            <label>סגנון המפה</label>
+            <div class="theme-opts">
+              <button class="theme-opt" data-theme="clean"><b>נקי ומודרני</b><small>עדין ומסודר</small></button>
+              <button class="theme-opt" data-theme="playful"><b>אורגני וצבעוני</b><small>חי ומודגש</small></button>
+            </div>
+          </div>
+        </section>
+
+        <!-- AI -->
+        <section class="side-pane" data-pane="ai" hidden>
+          <div class="pane-head"><h2>✨ בינה מלאכותית</h2></div>
+          <div class="seg" id="aiSeg">
+            <button class="seg-btn active" data-mode="generate">מרעיון</button>
+            <button class="seg-btn" data-mode="source">מהטקסט שלי</button>
+          </div>
+          <textarea id="aiInput" rows="6" placeholder="על מה המפה? לדוגמה: שיעור על פוטוסינתזה לכיתה ז'"></textarea>
+          <p class="pane-hint" id="aiHint">המפה תיווצר כמפה חדשה ולא תדרוס את הנוכחית.</p>
+          <button class="btn-primary" id="aiGo">צור מפה</button>
+          <div class="ai-busy" id="aiBusy" hidden><span class="spinner"></span> בונה את המפה…</div>
+          <hr class="pane-div" />
+          <button class="pane-cta alt" id="btnExpand">🪄 הרחב את הצומת הנבחר</button>
+          <p class="pane-hint">בחר צומת במפה ולחץ כדי להוסיף לו תתי-נושאים מה-AI.</p>
+        </section>
+
+        <!-- Outline -->
+        <section class="side-pane" data-pane="outline" hidden>
+          <div class="pane-head"><h2>מתאר</h2></div>
+          <ul class="outline-list" id="outlineList"></ul>
+        </section>
+      </div>
+    </aside>
   </div>
 
   <!-- Hidden file input for import -->
@@ -134,6 +150,6 @@
   <!-- Toasts -->
   <div class="toasts" id="toasts" aria-live="polite"></div>
 
-  <script type="module" src="js/app.js?v=2"></script>
+  <script type="module" src="js/app.js?v=3"></script>
 </body>
 </html>

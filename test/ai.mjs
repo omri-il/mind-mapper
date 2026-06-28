@@ -21,9 +21,9 @@ try {
   await page.goto(URL, { waitUntil: 'networkidle', timeout: 30000 });
   await page.waitForFunction(() => /הרעיון שלי|פוטוסינתזה/.test(document.querySelector('#map')?.textContent || ''), { timeout: 15000 });
 
-  // open AI modal, generate from a Hebrew prompt
-  await page.click('#btnAI');
-  await page.waitForSelector('#aiModal:not([hidden])', { timeout: 5000 });
+  // open the AI sidebar pane, generate from a Hebrew prompt
+  await page.click('.rail-btn[data-tab="ai"]');
+  await page.waitForSelector('.side-pane[data-pane="ai"]:not([hidden])', { timeout: 5000 });
   await page.fill('#aiInput', 'פוטוסינתזה לכיתה ז');
   await page.click('#aiGo');
 

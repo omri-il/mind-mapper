@@ -7,19 +7,78 @@ import { getTheme } from './theme.js';
 
 export class MindMap {
   constructor(selector) {
+    this.el = document.querySelector(selector);
     this.mind = new MindElixir({
       el: selector,
       direction: MindElixir.RIGHT,
-      draggable: true,
       editable: true,
+      draggable: true,
       contextMenu: false,
       toolBar: false,
       keypress: true,
       allowUndo: true,
       locale: 'en',
       newTopicName: 'נושא חדש',
+      mouseSelectionButton: 2, // free the LEFT button for grab-to-pan
     });
     this._env = null;
+    this._initInteractions();
+  }
+
+  // ---- grab-to-pan + wheel/trackpad zoom + resize re-center ----
+  _initInteractions() {
+    const el = this.el;
+    if (!el || this._wired) return;
+    this._wired = true;
+
+    const onNode = (t) => t && t.closest && t.closest('me-tpc, me-epd, me-wrapper, .selection, .map-canvas-svg');
+    let panning = false, lx = 0, ly = 0;
+
+    el.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 || onNode(e.target)) return; // left button, empty background only
+      panning = true; lx = e.clientX; ly = e.clientY;
+      el.classList.add('is-panning');
+      try { el.setPointerCapture(e.pointerId); } catch {}
+    });
+    el.addEventListener('pointermove', (e) => {
+      if (!panning) return;
+      const dx = e.clientX - lx, dy = e.clientY - ly; lx = e.clientX; ly = e.clientY;
+      this.mind.move(dx, dy);
+    });
+    const endPan = (e) => {
+      if (!panning) return;
+      panning = false; el.classList.remove('is-panning');
+      try { el.releasePointerCapture(e.pointerId); } catch {}
+    };
+    el.addEventListener('pointerup', endPan);
+    el.addEventListener('pointercancel', endPan);
+
+    el.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      if (e.ctrlKey || e.metaKey) { // pinch / ctrl+wheel → zoom toward cursor
+        const f = e.deltaY < 0 ? 1.12 : 0.89;
+        const ns = clamp((this.mind.scaleVal || 1) * f, 0.2, 3);
+        this.mind.scale(ns, { x: e.clientX, y: e.clientY });
+      } else { // two-finger / wheel scroll → pan
+        this.mind.move(-e.deltaX, -e.deltaY);
+      }
+    }, { passive: false });
+
+    // re-center when the container size changes (sidebar toggle, window resize, after fonts load)
+    this._ro = new ResizeObserver(() => {
+      clearTimeout(this._roT);
+      this._roT = setTimeout(() => { try { this.mind.toCenter(); } catch {} }, 160);
+    });
+    this._ro.observe(el);
+  }
+
+  // briefly enable a CSS transition for one-off camera moves
+  _animate() {
+    const c = this.el?.querySelector('.map-canvas');
+    if (!c) return;
+    c.classList.add('animate');
+    clearTimeout(this._animT);
+    this._animT = setTimeout(() => c.classList.remove('animate'), 280);
   }
 
   // Load an envelope into the map.
@@ -141,10 +200,31 @@ export class MindMap {
   }
 
   // ---- camera ----
-  zoomIn() { this.mind.scale(Math.min((this.mind.scaleVal || 1) * 1.2, 3)); }
-  zoomOut() { this.mind.scale(Math.max((this.mind.scaleVal || 1) / 1.2, 0.2)); }
-  fit() { this.mind.scaleFit(); }
+  zoomIn() { this._animate(); this.mind.scale(clamp((this.mind.scaleVal || 1) * 1.2, 0.2, 3)); }
+  zoomOut() { this._animate(); this.mind.scale(clamp((this.mind.scaleVal || 1) / 1.2, 0.2, 3)); }
+  fit() { this._animate(); this.mind.scaleFit(); }
+  recenter() { this._animate(); try { this.mind.toCenter(); } catch {} }
+
+  // select a node by id and bring it to the centre (used by the outline)
+  focusNodeById(id) {
+    const el = MindElixir.E(id);
+    if (!el) return false;
+    this._animate();
+    this.mind.selectNode(el);
+    try { this.mind.scrollIntoView(el, true); } catch { try { this.mind.toCenter(); } catch {} }
+    return true;
+  }
+
+  // bump the selected node's font size
+  setFontDelta(delta) {
+    const el = this.current(); if (!el?.nodeObj) return;
+    const cur = parseInt(el.nodeObj.style?.fontSize, 10) || 24;
+    const next = clamp(cur + delta, 12, 56);
+    this.mind.reshapeNode(el, { style: { fontSize: String(next) } });
+  }
 }
+
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
 // return the chain of nodes [root, ..., target] for a given id, or null
 function findTrail(node, id, trail = []) {

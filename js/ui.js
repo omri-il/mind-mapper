@@ -58,15 +58,7 @@ export function fillEmoji(container, onPick) {
   });
 }
 
-// ---- drawer ----
-export function openDrawer() {
-  document.getElementById('drawer').hidden = false;
-  document.getElementById('scrim').hidden = false;
-}
-export function closeDrawer() {
-  document.getElementById('drawer').hidden = true;
-  document.getElementById('scrim').hidden = true;
-}
+// ---- maps list (rendered into the sidebar) ----
 export function renderMapsList(activeId, handlers) {
   const ul = document.getElementById('mapsList');
   ul.innerHTML = '';

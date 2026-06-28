@@ -52,8 +52,8 @@ try {
   const after = await page.locator(nodeSel).count();
   ok('add-child increases node count', after === before + 1, `${before} -> ${after}`);
 
-  // theme switch (must not throw)
-  await page.click('#btnTheme');
+  // theme switch (now in the sidebar Format pane)
+  await page.click('.rail-btn[data-tab="format"]');
   await page.click('.theme-opt[data-theme="playful"]');
   await page.waitForTimeout(300);
   ok('theme switch works', true);
