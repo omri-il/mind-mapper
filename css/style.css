@@ -98,6 +98,29 @@ body.side-collapsed .tb-side-toggle .ic { transform: scaleX(-1); }
 /* smooth, but only for one-off camera moves (zoom buttons / fit / jump-to-node) */
 .map .map-canvas.animate { transition: transform .22s cubic-bezier(.22,.61,.36,1); }
 
+/* ===== Node drag affordance (grab nodes to reorganize) ===== */
+me-tpc { cursor: grab; transition: box-shadow .15s, transform .08s; }
+me-tpc:hover { box-shadow: 0 4px 14px rgba(24, 32, 60, .16); }
+me-tpc:active { cursor: grabbing; transform: scale(.98); }
+me-tpc[contenteditable="true"], me-tpc[contenteditable="true"]:active { cursor: text; transform: none; }
+
+/* the dragged copy that follows the cursor */
+.mind-elixir-ghost {
+  opacity: .92 !important;
+  box-shadow: 0 14px 30px rgba(24, 32, 60, .3) !important;
+  transform: rotate(-2deg) scale(1.04);
+}
+
+/* clearer, on-brand drop indicators */
+.insert-preview.show { background: var(--accent) !important; opacity: .9 !important; border-radius: 4px; }
+.insert-preview.before, .insert-preview.after { height: 5px !important; }
+.insert-preview.before { top: -9px !important; }
+.insert-preview.after { bottom: -9px !important; }
+.insert-preview.in {
+  background: transparent !important; opacity: 1 !important;
+  outline: 2.5px dashed var(--accent); outline-offset: 3px; border-radius: 12px;
+}
+
 /* ===== Sidebar ===== */
 .sidebar {
   flex: none; display: flex; height: 100%;
