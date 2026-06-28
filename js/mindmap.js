@@ -10,7 +10,7 @@ export class MindMap {
     this.el = document.querySelector(selector);
     this.mind = new MindElixir({
       el: selector,
-      direction: MindElixir.RIGHT,
+      direction: MindElixir.LEFT, // LTR canvas + LEFT = root on the right (Hebrew-natural)
       editable: true,
       draggable: true,
       contextMenu: false,
@@ -187,13 +187,14 @@ export class MindMap {
 
   // ---- direction ----
   _applyDirection(dir) {
-    if (dir === DIR.LEFT) this.mind.initLeft();
+    // meta.direction is the mind-elixir constant; with our LTR canvas, LEFT renders root-on-right.
+    if (dir === DIR.RIGHT) this.mind.initRight();
     else if (dir === DIR.SIDE) this.mind.initSide();
-    else this.mind.initRight();
+    else this.mind.initLeft();
   }
   cycleDirection() {
-    const cur = this._env?.meta.direction ?? DIR.RIGHT;
-    const next = cur === DIR.RIGHT ? DIR.LEFT : cur === DIR.LEFT ? DIR.SIDE : DIR.RIGHT;
+    const cur = this._env?.meta.direction ?? DIR.LEFT;
+    const next = cur === DIR.LEFT ? DIR.RIGHT : cur === DIR.RIGHT ? DIR.SIDE : DIR.LEFT;
     if (this._env) this._env.meta.direction = next;
     this._applyDirection(next);
     return next;

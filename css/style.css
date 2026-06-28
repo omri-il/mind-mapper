@@ -98,8 +98,12 @@ body.side-collapsed .tb-side-toggle .ic { transform: scaleX(-1); }
 /* smooth, but only for one-off camera moves (zoom buttons / fit / jump-to-node) */
 .map .map-canvas.animate { transition: transform .22s cubic-bezier(.22,.61,.36,1); }
 
+/* mind-elixir's pan/centre math assumes an LTR canvas; force the map subtree LTR
+   (fixes the map drifting off-screen on RTL pages) — node TEXT stays RTL below. */
+#map, .map-container, .map-canvas { direction: ltr; }
+
 /* ===== Node drag affordance (grab nodes to reorganize) ===== */
-me-tpc { cursor: grab; transition: box-shadow .15s, transform .08s; }
+me-tpc { cursor: grab; direction: rtl; transition: box-shadow .15s, transform .08s; }
 me-tpc:hover { box-shadow: 0 4px 14px rgba(24, 32, 60, .16); }
 me-tpc:active { cursor: grabbing; transform: scale(.98); }
 me-tpc[contenteditable="true"], me-tpc[contenteditable="true"]:active { cursor: text; transform: none; }

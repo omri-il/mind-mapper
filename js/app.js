@@ -16,7 +16,7 @@ let side = null;
 const autosave = store.makeAutosaver(600);
 const $ = (id) => document.getElementById(id);
 
-const DIR_NAME = { [DIR.RIGHT]: 'שורש מימין', [DIR.LEFT]: 'שורש משמאל', [DIR.SIDE]: 'דו-צדדי' };
+const DIR_NAME = { [DIR.LEFT]: 'שורש מימין', [DIR.RIGHT]: 'שורש משמאל', [DIR.SIDE]: 'דו-צדדי' };
 
 function setTitle(t) { $('currentMapTitle').textContent = t || 'ללא שם'; }
 

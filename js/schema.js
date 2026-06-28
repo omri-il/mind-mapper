@@ -3,7 +3,7 @@
 // losslessly and AI-generated maps use the exact same shape.
 
 export const MM_FORMAT = 'mindmapper';
-export const MM_VERSION = 1;
+export const MM_VERSION = 2;
 
 // Direction constants (match MindElixir.LEFT/RIGHT/SIDE)
 export const DIR = { LEFT: 0, RIGHT: 1, SIDE: 2 };
@@ -24,8 +24,8 @@ export function ensureIds(node) {
   return node;
 }
 
-// A brand-new empty map envelope.
-export function newEnvelope(title = 'מפה חדשה', direction = DIR.RIGHT, theme = 'clean') {
+// A brand-new empty map envelope. Default direction LEFT = root on the right (Hebrew) on our LTR canvas.
+export function newEnvelope(title = 'מפה חדשה', direction = DIR.LEFT, theme = 'clean') {
   const root = { id: 'root', topic: title === 'מפה חדשה' ? 'נושא מרכזי' : title, children: [] };
   return {
     format: MM_FORMAT,
@@ -47,7 +47,7 @@ export function newEnvelope(title = 'מפה חדשה', direction = DIR.RIGHT, th
 export function toMindElixir(env, themeObj) {
   return {
     nodeData: env.root,
-    direction: env.meta.direction ?? DIR.RIGHT,
+    direction: env.meta.direction ?? DIR.LEFT,
     theme: themeObj || undefined,
   };
 }
@@ -68,18 +68,24 @@ export function validate(obj) {
 
   // Accept a raw mind-elixir export ({nodeData,...}) too.
   if (!obj.format && obj.nodeData) {
-    const env = newEnvelope(obj.nodeData.topic || 'מפה מיובאת', obj.direction ?? DIR.RIGHT);
+    const env = newEnvelope(obj.nodeData.topic || 'מפה מיובאת', obj.direction ?? DIR.LEFT);
     env.root = ensureIds(obj.nodeData);
     return env;
   }
   if (obj.format !== MM_FORMAT || !obj.root) throw new Error('זה לא קובץ מפת חשיבה');
 
   const env = obj;
-  env.version = MM_VERSION; // future migrations would branch on obj.version here
+  const oldVer = env.version || 1;
   env.meta = env.meta || {};
+  // v1 → v2: canvas switched to LTR, so flip the stored direction to keep the root on the same side
+  if (oldVer < 2 && typeof env.meta.direction === 'number') {
+    if (env.meta.direction === DIR.RIGHT) env.meta.direction = DIR.LEFT;
+    else if (env.meta.direction === DIR.LEFT) env.meta.direction = DIR.RIGHT;
+  }
+  env.version = MM_VERSION;
   env.meta.id = env.meta.id || ('m_' + genId().slice(1));
   env.meta.title = env.meta.title || 'מפה מיובאת';
-  env.meta.direction = env.meta.direction ?? DIR.RIGHT;
+  env.meta.direction = env.meta.direction ?? DIR.LEFT;
   env.meta.locale = env.meta.locale || 'he';
   env.meta.theme = env.meta.theme || 'clean';
   env.meta.createdAt = env.meta.createdAt || nowISO();
