@@ -122,3 +122,6 @@ export each format, grab-drag the canvas + a node, run a presentation.
   first. See the roadmap plan for the design.
 - **Open optional follow-ups:** list Mind-Mapper in `tools-hub` + the global project list; consider
   a safer "progressive reveal" for presentation; raise the AI rate limit if needed.
+
+## QR on the front page
+`css/qr.svg` is for someone watching on a projector or YouTube. It holds the fixed address `https://mindmap.omri-iram.co.il` only, made once with `segno` (error M, border 2). Nothing is generated at run time and no outside service is called.
